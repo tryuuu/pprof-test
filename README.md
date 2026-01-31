@@ -26,8 +26,7 @@ go tool pprof -http=:8080 mem.prof
 - $16 \text{ bytes} \times 100,000 \text{ elements} \approx 1.6 \text{ MB}$.
 - Since the size is constant, memory usage never exceeds this baseline.
 ### Bad
-~27.4GB: Massive cumulative allocation detected via `pprof`.
-- `pprof` shows **27.4GB** allocated in 5 seconds.
-- This corresponds to ~**1.7 billion elements** ($27.4\text{GB} \div 16\text{B string header}$).
-- **Analysis**: With 100,000 appends per inner loop, the outer loop ran ~**17,000 times**.
-- **Cause**: Frequent re-allocations and data copying of the backing array due to `append`.
+~27.4GB: Uses append, causing the slice to grow indefinitely for 5 seconds.
+- $16 \text{ bytes} \times 1.7\text{B elements} \approx 27.2 \text{ GB}$.
+- With 100,000 appends per loop running ~17,000 times, the slice reaches 1.7 billion elements.
+- The massive consumption comes from the ever-expanding backing array.
